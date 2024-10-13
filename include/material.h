@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "texture.h"
-enum class TextureType {
-	BASETEXTURE,
-	TEXTURENUM
+enum class MaterialType {
+	BASEMATERIAL,
+	MATERIALTYPENUM
 };
 class Material {
 	glm::vec3 diffuse = glm::vec3(1.0);
@@ -15,7 +15,7 @@ class Material {
 	Texture* diffuseMap = nullptr;
 	Texture* specularMap = nullptr;
 	Texture* normalMap = nullptr;
-	TextureType textureType;
+	MaterialType materialType;
 public:
 	//set
 	void SetDiffuse(glm::vec3 diffuse = glm::vec3(1.0), Texture* diffuseMap = nullptr);
@@ -26,7 +26,11 @@ public:
 	Material(Texture* diffuseMap = nullptr, Texture* specularMap = nullptr, Texture* normalMap = nullptr);
 	void GetTexture(std::vector<Texture*>& textures) const;
 	const Texture* GetDiffuseMap() const;
+	glm::vec3 GetDiffuse();
+	glm::vec3 GetSpecular();
+	glm::vec3 GetAmbient();
 	const Texture* GetSpecularMap() const;
 	const Texture* GetNormalMap() const;
+	MaterialType GetType() const;
 };
 #endif // !MATERIA_H

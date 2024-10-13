@@ -19,28 +19,28 @@ if (!success)\
 #define LAYOUT_(x) (x)
 
 
-#define VERTEX_SHADOW_SHADER_PATH ("D:/code/render/learnopengl/render/shader/shadow.vs")
-#define FRAGMENT_SHADOW_SHADER_PATH ("D:/code/render/learnopengl/render/shader/shadow.fs")
-#define VERTEX_MAIN_SHADER_PATH ("D:/code/render/learnopengl/render/shader/test.vs")
-#define FRAGMENT_MAIN_SHADER_PATH ("D:/code/render/learnopengl/render/shader/test.fs")
-#define VERTEX_POST_SHADER_PATH ("D:/code/render/learnopengl/render/shader/post.vs")
-#define FRAGMENT_POST_SHADER_PATH ("D:/code/render/learnopengl/render/shader/post.fs")
-#define VERTEX_SKYBOX_SHADER_PATH ("D:/code/render/learnopengl/render/shader/skybox.vs")
-#define FRAGMENT_SKYBOX_SHADER_PATH ("D:/code/render/learnopengl/render/shader/skybox.fs")
-#define VERTEX_VISBLE_SHADER_PATH ("D:/code/render/learnopengl/render/shader/visible.vs")
-#define FRAGMENT_VISBLE_SHADER_PATH ("D:/code/render/learnopengl/render/shader/visible.fs")
-#define GEOMETR_VISBLE_SHADER_PATH ("D:/code/render/learnopengl/render/shader/visible.gs")
+#define VERTEX_SHADOW_SHADER_PATH ("./shader/shadow.vs")
+#define FRAGMENT_SHADOW_SHADER_PATH ("./shader/shadow.fs")
+#define VERTEX_MAIN_SHADER_PATH ("./shader/test.vs")
+#define FRAGMENT_MAIN_SHADER_PATH ("./shader/test.fs")
+#define VERTEX_POST_SHADER_PATH ("./shader/post.vs")
+#define FRAGMENT_POST_SHADER_PATH ("./shader/post.fs")
+#define VERTEX_SKYBOX_SHADER_PATH ("./shader/skybox.vs")
+#define FRAGMENT_SKYBOX_SHADER_PATH ("./shader/skybox.fs")
+#define VERTEX_VISBLE_SHADER_PATH ("./shader/visible.vs")
+#define FRAGMENT_VISBLE_SHADER_PATH ("./shader/visible.fs")
+#define GEOMETR_VISBLE_SHADER_PATH ("./shader/visible.gs")
 
-#define TEXTURE_PATH std::string("D:/code/render/learnopengl/render/assets/texture/")
-#define TEXTURE_PATH_1 ("D:/code/render/learnopengl/render/assets/texture/container.jpg")
-#define TEXTURE_PATH_2 ("D:/code/render/learnopengl/render/assets/texture/wall.jpg")
-#define TEXTURE_PATH_DIFFUSE ("D:/code/render/learnopengl/render/assets/texture/box_diffuse.png")
-#define TEXTURE_PATH_SPECULAR ("D:/code/render/learnopengl/render/assets/texture/box_specular.png")
+#define TEXTURE_PATH std::string("./assets/texture/")
+#define TEXTURE_PATH_1 ("./assets/texture/container.jpg")
+#define TEXTURE_PATH_2 ("./assets/texture/wall.jpg")
+#define TEXTURE_PATH_DIFFUSE ("./assets/texture/box_diffuse.png")
+#define TEXTURE_PATH_SPECULAR ("./assets/texture/box_specular.png")
 #define TEXTURE_PATH_BRICKWALL (TEXTURE_PATH + std::string("brickwall.jpg"))
 #define TEXTURE_PATH_BRICKWALL_NORAML (TEXTURE_PATH + std::string("brickwall_normal.jpg"))
 
 
-#define SKYBOXPATH std::string("D:/code/render/learnopengl/render/assets/texture/skybox/")
+#define SKYBOXPATH std::string("./assets/texture/skybox/")
 #define SKYBOXBACK (SKYBOXPATH + std::string("back.jpg"))
 #define SKYBOXBOTTOM (SKYBOXPATH + std::string("bottom.jpg"))
 #define SKYBOXFRONT (SKYBOXPATH + std::string("front.jpg"))
@@ -49,7 +49,7 @@ if (!success)\
 #define SKYBOXTOP (SKYBOXPATH + std::string("top.jpg"))
 
 
-#define MODEL_PATH std::string("D:/code/render/learnopengl/render/assets/obj/")
+#define MODEL_PATH std::string("./assets/obj/")
 
 #define STR(x) #x
 

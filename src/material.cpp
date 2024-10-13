@@ -9,7 +9,7 @@ void Material::GetMaterialData(std::vector<float>* data, unsigned int &lenth) co
 	//std 140
 	data->reserve(data->size() + lenth);
 	PUSH_VEC3_TO_P_VECTOR(diffuse, data);
-	data->push_back(float(textureType));
+	data->push_back(float(materialType));
 	PUSH_VEC3_TO_P_VECTOR(specular, data);
 	data->push_back(0.f);
 	PUSH_VEC3_TO_P_VECTOR(ambient, data);
@@ -34,7 +34,7 @@ void Material::SetNormal(Texture* _normalMap)
 	normalMap = _normalMap;
 }
 Material::Material(Texture* _diffuseMap, Texture* _specularMap, Texture* _normalMap)
-	:diffuseMap (_diffuseMap), specularMap(_specularMap), normalMap(_normalMap), textureType(TextureType::BASETEXTURE) {}
+	:diffuseMap (_diffuseMap), specularMap(_specularMap), normalMap(_normalMap), materialType(MaterialType::BASEMATERIAL) {}
 
 void Material::GetTexture(std::vector<Texture*>& textures) const
 {
@@ -56,4 +56,20 @@ const Texture* Material::GetSpecularMap() const
 const Texture* Material::GetNormalMap() const
 {
 	return normalMap;
+}
+MaterialType Material::GetType() const
+{
+	return materialType;
+}
+glm::vec3 Material::GetDiffuse()
+{
+	return diffuse;
+}
+glm::vec3 Material::GetSpecular()
+{
+	return specular;
+}
+glm::vec3 Material::GetAmbient()
+{
+	return ambient;
 }

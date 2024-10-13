@@ -72,6 +72,8 @@ class MainPipeline : public Pipeline {
 public:
 	MainPipeline(const RenderText* renderText, Scene* scene);
 	MainPipeline() = delete;
+	//unique
+	void GetInstances(std::vector<Instance*>& i_nstances);
 private:
 	void SetRenderConfig();
 	void ClearRenderConfig();
@@ -80,6 +82,7 @@ private:
 	void ChangeFrameBufferSize(int _width, int _height, RenderText* renderText);
 	//unique
 	unsigned int GetAllInstanceMaterialSize() const;
+	
 };
 
 //in geo render normal or other things

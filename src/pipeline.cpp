@@ -251,6 +251,13 @@ unsigned int MainPipeline::GetAllInstanceMaterialSize() const
 	}
 	return count;
 }
+void MainPipeline::GetInstances(std::vector<Instance*>& _instances)
+{
+	for (auto instance : instances)
+	{
+		_instances.push_back(instance);
+	}
+}
 void MainPipeline::ChangeFrameBufferSize(int _width, int _height, RenderText* renderText)
 {
 	//1th

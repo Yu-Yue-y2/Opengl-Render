@@ -91,3 +91,14 @@ RenderText* Render::GetRenderText()
 {
 	return renderText.get();
 }
+Pipeline* Render::GetPipeline(PIPELINE_NAME name)
+{
+	for (uPtr<Pipeline>&pipeline : pipelines)
+	{
+		if (pipeline->pipeline_name == name)
+		{
+			return pipeline.get();
+		}
+	}
+	return nullptr;
+}

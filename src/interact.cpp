@@ -129,26 +129,104 @@ void ImguiWindow::RenderImgui()
     ImGui::Begin("Hello, ImGui!");
 
     ImGui::SetWindowSize(ImVec2(900, 900));
-    ImGui::Text("Lights");
-
-    Light* light = render->GetScene()->GetMainLight();
-
-    if (light->lighttype == POINTLIGHT) {
-        ImGui::Text("PointLight");
-        ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
-        ImGui::SliderFloat3("pos", glm::value_ptr(((PointLight*)light)->pos), -40.0, 40.0);
-    }
-    else if (light->lighttype == DIRECTIONLIGHT) {
-        ImGui::Text("DirectionLight");
-        ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
-        ImGui::SliderFloat3("dir", glm::value_ptr(((DirectionLight*)light)->dir), -1.0, 1.0);
-        ImGui::SliderFloat("lenth", &(((DirectionLight*)light)->lenth), 0.5, 1000.0);
-    }
-
-    RenderText* renderText = render->GetRenderText();
-    //Pipeline* main_pipe = render->GetPipeLine(PIPELINE_NAME::MAIN);
-    //shadow
+    ImGui::Text("Objects");
+    
+    if (ImGui::CollapsingHeader("Instance"))
     {
+        MainPipeline* mainPipeline = dynamic_cast<MainPipeline*>(render->GetPipeline(PIPELINE_NAME::MAIN));
+        std::vector<Instance*> instances;
+        mainPipeline->GetInstances(instances);
+        std::vector<const char*> names;
+        for (Instance* instance : instances)
+        {
+            names.push_back(instance->name);
+        }
+        static int item_current = 0;
+        ImGui::ListBox("ObjectName", &item_current, names.data(), instances.size() , 3);
+        Instance* c_instance = instances[item_current];
+        {
+            static bool LockPosition = true;
+            ImGui::Checkbox("Lock##pos", &LockPosition);
+            ImGui::SameLine();
+            glm::vec3 position = c_instance->GetPosition();
+            if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -50.0, 50.0)) 
+            {
+                if (!LockPosition)
+                {
+                    c_instance->SetPosition(position);
+                }
+            }
+        }
+      
+        if (ImGui::CollapsingHeader("Material"))
+        {
+            Material mat = c_instance->GetMaterial();
+            static bool diffuseLock = true;
+            static bool specularLock = true;
+            static bool ambientLock = true;
+            if(mat.GetType() == MaterialType::BASEMATERIAL)
+            {
+                bool change = false;
+                ImGui::Checkbox("Lock##m_dif", &diffuseLock);
+                ImGui::SameLine();
+                glm::vec3 diffuse = mat.GetDiffuse();
+                if (ImGui::SliderFloat3("Diffuse", glm::value_ptr(diffuse), 0.0, 1.0))
+                {
+                    if (!diffuseLock)
+                    {
+                        change = true;
+                        mat.SetDiffuse(diffuse);
+                    }
+                }
+           
+                ImGui::Checkbox("Lock##m_spec", &specularLock);
+                ImGui::SameLine();
+                glm::vec3 specular = mat.GetSpecular();
+                if (ImGui::SliderFloat3("Specular", glm::value_ptr(specular), 0.0, 1.0)) 
+                {
+                    if (!specularLock)
+                    {
+                        change = true;
+                        mat.SetSpecular(specular);
+                    }
+                }
+                
+                ImGui::Checkbox("Lock##m_env", &ambientLock);
+                ImGui::SameLine();
+                glm::vec3 ambient = mat.GetAmbient();
+                if (ImGui::SliderFloat3("Ambient", glm::value_ptr(ambient), 0.0, 1.0)) 
+                {
+                    if (!ambientLock)
+                    {
+                        change = true;
+                        mat.SetAmbient(ambient);
+                    }
+                }
+                if (change)
+                {
+                    c_instance->SetMaterial(mat);
+                }
+            }
+        }
+    }
+    if (ImGui::CollapsingHeader("Lights")) {
+        Light* light = render->GetScene()->GetMainLight();
+        if (light->lighttype == POINTLIGHT) {
+            ImGui::Text("PointLight");
+            ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
+            ImGui::SliderFloat3("pos", glm::value_ptr(((PointLight*)light)->pos), -40.0, 40.0);
+        }
+        else if (light->lighttype == DIRECTIONLIGHT) {
+            ImGui::Text("DirectionLight");
+            ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
+            ImGui::SliderFloat3("dir", glm::value_ptr(((DirectionLight*)light)->dir), -1.0, 1.0);
+            ImGui::SliderFloat("lenth", &(((DirectionLight*)light)->lenth), 0.5, 1000.0);
+        }
+    }
+    RenderText* renderText = render->GetRenderText();
+    if (ImGui::CollapsingHeader("Shadow"))
+    {
+        //shadow
         SHADOWTYPE shadowType = renderText->shadowInf.shadow_type;
         ImGui::Text("SHADOW");
         const char* items[] = { "None", "Normal", "PCF", "PCSS" };
@@ -166,12 +244,12 @@ void ImguiWindow::RenderImgui()
             }
         }
     }
-    ImGui::Text("");
     //hdr
+    if (ImGui::CollapsingHeader("HDR"))
     {
         ImGui::Text("HDR");
         HdrType hdrType = renderText->hdrInf.hdr_type;
-        const char* items[] = { "None", "Reinhard", "Exp", "Flimic", "Aces"};
+        const char* items[] = { "None", "Reinhard", "Exp", "Flimic", "Aces" };
         int item_current = int(hdrType);
         ImGui::ListBox("HdrType", &item_current, items, IM_ARRAYSIZE(items), 3);
         hdrType = (HdrType)item_current;
@@ -179,7 +257,6 @@ void ImguiWindow::RenderImgui()
         if (hdrType == HdrType::HDR_EXP)
             ImGui::SliderFloat("exposure", &(renderText->hdrInf.exposure), 0.2, 2.0);
     }
-   
     
     ImGui::End();
 

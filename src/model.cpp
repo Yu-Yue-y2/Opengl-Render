@@ -258,15 +258,11 @@ void Model::Render() const
     }
     vao->DisActive();
 }
-Instance::Instance(Model& _model, glm::mat4 _model_trans, Material mat, ModelType modelt)
+Instance::Instance(Model& _model, glm::mat4 _model_trans, const char* _name, Material mat, ModelType modelt)
     :model(_model), model_transform(_model_trans), normal_transform(glm::transpose(glm::inverse(_model_trans))), 
-    modelType(modelt), material(mat)
+    modelType(modelt), material(mat), name(_name)
 {}
 
-Instance::Instance(const Instance& instance)
-    :model(instance.model), model_transform(instance.model_transform), normal_transform(instance.normal_transform), 
-    modelType(instance.modelType), material(instance.material), followLight(instance.followLight)
-{}
 ModelType Instance::GetModelType() const
 {
     return modelType;
@@ -298,4 +294,14 @@ void Instance::SetFollowLight(const Light* light)
 const Light* Instance::GetLigtht() const
 {
     return followLight;
+}
+glm::vec3 Instance::GetPosition() const
+{
+    return glm::vec3(model_transform[3][0], model_transform[3][1], model_transform[3][2]);
+}
+void Instance::SetPosition(glm::vec3 pos)
+{
+    for (int i = 0; i < 3; i++)
+        model_transform[3][i] = pos[i];
+    normal_transform = glm::transpose(glm::inverse(model_transform));
 }

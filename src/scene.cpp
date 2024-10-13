@@ -36,7 +36,7 @@ Scene::Scene(RenderText* renderText)
 	uPtr<Model> u_model1 = mkU<Model>((MODEL_PATH + std::string("africanhead/african_head.obj")).c_str(), false);
 	Model* model1 = AddModel(u_model1);
 	Material AfricanHeadMaterial(AfricanHeadDiffuseTexture);
-	Instance AfricanHeadInstance(*model1, glm::rotate(glm::mat4(), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)), AfricanHeadMaterial);
+	Instance AfricanHeadInstance(*model1, glm::rotate(glm::mat4(), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)), "Head", AfricanHeadMaterial);
 	AddInstance(AfricanHeadInstance);
 
 	uPtr<Model> u_plane_tbn = mkU<Model>((MODEL_PATH + std::string("cube/cube.obj")).c_str(), true);
@@ -46,24 +46,30 @@ Scene::Scene(RenderText* renderText)
 	Model* plane_tbn = AddModel(u_plane_tbn);
 	AddInstance(Instance(*plane_tbn,
 		glm::translate(glm::mat4(), glm::vec3(0.0, -1.0, 0.0)) * glm::scale(glm::mat4(), glm::vec3(15.0, 0.2, 15.0)),
+		"Plane1",
 		gridPlaneMaterial));
 	AddInstance(Instance(*plane_tbn,
 		glm::translate(glm::mat4(), glm::vec3(30.0, -1.0, 0.0)) * glm::scale(glm::mat4(), glm::vec3(15.0, 0.2, 15.0)),
+		"Plane2",
 		gridPlaneMaterial));
 	AddInstance(Instance(*plane_tbn,
 		glm::translate(glm::mat4(), glm::vec3(0.0, 14.01, -15)) * glm::scale(glm::mat4(), glm::vec3(15.0, 15.0, 0.5)),
+		"Plane3",
 		gridPlaneMaterial));
 	AddInstance(Instance(*plane_tbn,
 		glm::translate(glm::mat4(), glm::vec3(30.0, 14.01, -15)) * glm::scale(glm::mat4(), glm::vec3(15.0, 15.0, 0.5)),
+		"Plane4",
 		gridPlaneMaterial));
 	AddInstance(Instance(*plane_tbn,
 		glm::translate(glm::mat4(), glm::vec3(40.5, 14.05, 0.0)) * glm::scale(glm::mat4(), glm::vec3(0.3, 15.0, 15.0)),
+		"Plane5",
 		gridPlaneMaterial));
 
 	uPtr<Model> u_lightcube = mkU<Model>((MODEL_PATH + std::string("cube/cube.obj")).c_str());
 	Model* lightcube = AddModel(u_lightcube);
 	Instance lightCubeInstance(*lightcube,
-		glm::translate(glm::mat4(), light->getPos()) * glm::scale(glm::mat4(), glm::vec3(0.6, 0.6, 0.6)));
+		glm::translate(glm::mat4(), light->getPos()) * glm::scale(glm::mat4(), glm::vec3(0.6, 0.6, 0.6)),
+		"LightCube");
 	lightCubeInstance.SetFollowLight(light);
 	AddInstance(lightCubeInstance);
 
@@ -76,11 +82,11 @@ Scene::Scene(RenderText* renderText)
 	uPtr<Model> u_model_skybox = mkU<Model>();
 	u_model_skybox->DirectlyLoadData(skyboxVertices);
 	Model* model_skybox = AddModel(u_model_skybox);
-	AddInstance(Instance(*model_skybox, glm::mat4(), Material(), ModelType::SKYBOX));
+	AddInstance(Instance(*model_skybox, glm::mat4(), "Skybox", Material(), ModelType::SKYBOX));
 	
 	uPtr<Model> u_model_post = mkU<Model>((MODEL_PATH + std::string("quad/quad.obj")).c_str());
 	Model* model_post = AddModel(u_model_post);
-	AddInstance(Instance(*model_post, glm::mat4(), Material(), ModelType::POST));
+	AddInstance(Instance(*model_post, glm::mat4(), "PostQuad", Material(), ModelType::POST));
 
 	SetVao();
 	ClearModelData();

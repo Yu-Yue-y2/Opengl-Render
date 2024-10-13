@@ -39,8 +39,9 @@ class Instance
 	Material material;
 	const Light* followLight = nullptr;
 public:
-	Instance(Model& _model, glm::mat4 _model_trans, Material mat = Material(), ModelType modelt = RENDER);
-	Instance(const Instance& instance);
+	const char* name = nullptr;
+	Instance(Model& _model, glm::mat4 _model_trans, const char* _name, Material mat = Material(), ModelType modelt = RENDER);
+	//Instance(const Instance& instance);
 	ModelType GetModelType() const;
 	const Model& GetModel() const;
 	glm::mat4 GetModelMatrix() const;
@@ -49,6 +50,7 @@ public:
 	Material GetMaterial() const;
 	void SetFollowLight(const Light* light);
 	const Light* GetLigtht() const;
-
+	glm::vec3 GetPosition() const;
+	void SetPosition(glm::vec3);
 };
 #endif

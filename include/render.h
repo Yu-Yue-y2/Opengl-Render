@@ -18,6 +18,7 @@ public:
 	void ChangeFrameBufferSize(int _width, int _height, bool interactWindow);
 	Scene* GetScene();
 	RenderText* GetRenderText();
+	Pipeline* GetPipeline(PIPELINE_NAME name);
 };
 
 #endif
