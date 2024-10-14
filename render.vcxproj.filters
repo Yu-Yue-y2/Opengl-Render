@@ -150,4 +150,7 @@
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="helplog.txt" />
+  </ItemGroup>
 </Project>

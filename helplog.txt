@@ -1,0 +1,43 @@
+2024.10.14 01:56
+environment map: 
+https://zhuanlan.zhihu.com/p/144438588 help to modify the reflection dir to find correct sample in environment map
+
+note:
+Firstly skybox has a little difference with environment shading, but to make them looks harmouious, I should take both into consideration.
+In the past version, I use gl_Position = pos.xyww and GL_LEQUAL to push the skybox cube to the far plane of the camera, which makes the object render in the 
+background but not cube-like. 
+It is convient but really bring another problem when correcting reflect dir, since I have to know this cube's world position and size.
+So I use a large cube box([-100,100]^3) to take place the past cube box([-1,1]^3) and still render it at last 
+cause it will be efficient if early-z is used.
+To let the skybox looks real, i use mat4(mat3(view_mat)) to clear all the translating,thus when I move the camera, the background dosn't move 
+and seems it is in a really really far place.
+Indeed it is same to change all the cube's vertex positions with that translating whenever camera moves.
+So the skybox cube should be seen having a translate of camera position in the calculaton.
+
+'''
+vec3 box_max = vec3(skybox_size) + fs_in.view_point;
+vec3 box_min = -box_max;
+float t = FLT_MAX;
+for(int i = 0;i < 3; i++)
+{
+    //maybe there's a better method to deal
+    if(dir[i] == 0.0)
+        continue;
+    //calculate the nearest point of the reflect ray and skybox cube
+    t = min(t, (dir[i] > 0.0 ? (box_max[i] - fs_in.world_pos[i]) : (box_min[i] - fs_in.world_pos[i])) / dir[i]);
+}
+//minus view point because the camera is the center of the map
+reflect_dir = normalize(fs_in.world_pos + t * dir - fs_in.view_point);
+'''
+Advantage: Physically correct.
+Disadvantage: More caculation
+RenderDoc analyse:
+past: 414.596 us GPU duration for rendering the head
+now: 418.496
+frame rate 105->102
+
+future plan:
+1 load more lights
+2 shadow for point light (cubemap, ...)
+3 more material (micro face)
+ 

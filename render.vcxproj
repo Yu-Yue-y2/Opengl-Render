@@ -192,6 +192,9 @@
     <Image Include="assets\texture\box_specular.png" />
     <Image Include="assets\texture\wall.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="helplog.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
