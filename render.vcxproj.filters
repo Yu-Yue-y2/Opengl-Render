@@ -140,9 +140,6 @@
     <Image Include="assets\texture\wall.jpg">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="assets\texture\container.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="assets\texture\awesomeface.png">
       <Filter>资源文件</Filter>
     </Image>

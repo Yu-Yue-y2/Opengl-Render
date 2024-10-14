@@ -30,7 +30,7 @@ Scene::Scene(RenderText* renderText)
 	uPtr<Texture> _texture_skybox = mkU<CubeTexture>(skybox_paths);
 	_texture_skybox->SetName(SKYBOXNAME);
 	Texture* texture_skybox = AddTexture(_texture_skybox);
-	renderText->sharedObject.SkyboxTextureId = GetTextureNum() - 1;
+	renderText->skyboxInf.skyboxTexture = texture_skybox;
 
 
 	uPtr<Model> u_model1 = mkU<Model>((MODEL_PATH + std::string("africanhead/african_head.obj")).c_str(), false);
@@ -80,9 +80,12 @@ Scene::Scene(RenderText* renderText)
 		glm::translate(glm::mat4(), glm::vec3(2.0, -1.0, 2.0)) * glm::scale(glm::mat4(), glm::vec3(0.02, 0.02, 0.02))));
 	*/
 	uPtr<Model> u_model_skybox = mkU<Model>();
-	u_model_skybox->DirectlyLoadData(skyboxVertices);
+	if (renderText->skyboxInf.skyboxType == SKYBOXTYPE::CUBEMAP_SKYBOX)
+	{
+		u_model_skybox->DirectlyLoadData(skyboxVertices);
+	}
 	Model* model_skybox = AddModel(u_model_skybox);
-	AddInstance(Instance(*model_skybox, glm::mat4(), "Skybox", Material(), ModelType::SKYBOX));
+	AddInstance(Instance(*model_skybox, glm::scale(glm::mat4(), glm::vec3(renderText->skyboxInf.size)), "Skybox", Material(), ModelType::SKYBOX));
 	
 	uPtr<Model> u_model_post = mkU<Model>((MODEL_PATH + std::string("quad/quad.obj")).c_str());
 	Model* model_post = AddModel(u_model_post);

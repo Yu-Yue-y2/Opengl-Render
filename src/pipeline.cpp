@@ -165,7 +165,7 @@ MainPipeline::MainPipeline(const RenderText* renderText, Scene* scene)
 	shader->BindUniformBlock(materialsUniformBuf.get());
 	uniforms[UniformId::MATERIALS] = (std::move(materialsUniformBuf));
 	//skybox
-	free_textures.push_back(scene->GetTexure(renderText->sharedObject.SkyboxTextureId));
+	free_textures.push_back(renderText->skyboxInf.skyboxTexture);
 
 	fbo = mkS<FrameBuffer>(width, height, false, GL_RGB16F);
 }
@@ -180,12 +180,17 @@ void MainPipeline::SetGlobalUniformValue(RenderText* renderText, Scene* scene)
 	shader->setVec4("intensity", scene->GetMainLight()->getData().intensity);
 	shader->setVec4("config", scene->GetMainLight()->getData().v1);
 	shader->setVec3("viewpos", scene->GetCamera()->Position);
+	//shaodw
 	shader->setInt("ShadowType", int(renderText->shadowInf.shadow_type));
 	shader->setInt("core", renderText->shadowInf.core_half);
 	shader->setFloat("hpixellenth", 30.0 / ((float)shadow_map_width * 2.0));
 	shader->setFloat("biascontrol", renderText->shadowInf.biascontrol);
 	shader->setFloat("biasoffset", renderText->shadowInf.biasoffset);
-	
+	//skybox
+	shader->setBool("correct_reflect_env", renderText->skyboxInf.correctReflect);
+	shader->setInt("skybox_type", (int)renderText->skyboxInf.skyboxType);
+	shader->setFloat("skybox_size", renderText->skyboxInf.size);
+
 	if (renderText->shadowInf.shadowMap)
 	{
 		shader->setTexture(renderText->textureDynamicCount, renderText->shadowInf.shadowMap->depthTexture.get());
@@ -360,26 +365,37 @@ SkyboxPipeline::SkyboxPipeline(const RenderText* renderText, Scene* scene)
 	std::vector<Shader*> shaders_skybox = { vs_visble.get(),fs_visble.get() };
 
 	shader = mkU<ShaderProgram>(shaders_skybox);
-	free_textures.push_back(scene->GetTexure(renderText->sharedObject.SkyboxTextureId));
+	free_textures.push_back(renderText->skyboxInf.skyboxTexture);
 	fbo = renderText->sharedObject.MainFbo;
 
 }
 void SkyboxPipeline::SetRenderConfig()
 {
 	glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
+	//glDepthFunc(GL_LEQUAL);
 }
 void SkyboxPipeline::ClearRenderConfig() 
 {
 	glEnable(GL_CULL_FACE);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 }
 
 void SkyboxPipeline::SetGlobalUniformValue(RenderText* renderText, Scene* scene)
 {
-	shader->setMatrix4("vp", renderText->calculationRe.camera_projection * glm::mat4(glm::mat3(renderText->calculationRe.camera_view)));
+	shader->setInt("skybox_type", (int)renderText->skyboxInf.skyboxType);
 	SetFreeTextureUniform(renderText);
 }
-void SkyboxPipeline::SetInstanceUniformValue(RenderText* renderText, unsigned int InstanceId, Scene* scene) {}
+void SkyboxPipeline::SetInstanceUniformValue(RenderText* renderText, unsigned int InstanceId, Scene* scene) 
+{
+	glm::mat4 mvp = renderText->calculationRe.camera_projection * glm::mat4(glm::mat3(renderText->calculationRe.camera_view)) * instances[InstanceId]->GetModelMatrix();
+	shader->setMatrix4("mvp", mvp);
+}
 //mainpipeline has changed
 void SkyboxPipeline::ChangeFrameBufferSize(int _width, int _height, RenderText* renderText) {}
+void SkyboxPipeline::ChangeSkyboxSize(float size)
+{
+	for (Instance* instance : instances)
+	{
+		instance->SetModelTransform(glm::scale(glm::mat4(), glm::vec3(size)));
+	}
+}

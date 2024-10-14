@@ -40,7 +40,7 @@ struct PipelineInf
 	bool has_geometryTest = false;
 };
 struct SharedObject {
-	unsigned int SkyboxTextureId = -1;
+	
 	sPtr<FrameBuffer> MainFbo = nullptr;
 };
 struct CalculationResult {
@@ -49,6 +49,17 @@ struct CalculationResult {
 	glm::mat4 camera_projection;
 	glm::mat4 camera_vp;
 };
+enum class SKYBOXTYPE {
+	CUBEMAP_SKYBOX,
+	SKYBOX_NUM
+};
+struct SkyboxInf {
+	Texture* skyboxTexture;
+	SKYBOXTYPE skyboxType = SKYBOXTYPE::CUBEMAP_SKYBOX;
+	//size of skybox lenth
+	float size = 100.0;
+	bool correctReflect = false;
+};
 struct RenderText {
 	//used for render record calculation result
 	unsigned int textureDynamicCount = 0;
@@ -56,6 +67,7 @@ struct RenderText {
 	SharedObject sharedObject;
 	ShadowInf shadowInf;
 	HdrInf hdrInf;
+	SkyboxInf skyboxInf;
 	GeometryInf geoInf;
 	PipelineInf pipeInf;
 };

@@ -101,12 +101,14 @@ class SkyboxPipeline : public Pipeline {
 public:
 	SkyboxPipeline(const RenderText* renderText, Scene* scene);
 	SkyboxPipeline() = delete;
+	void ChangeSkyboxSize(float);
 private:
 	void SetRenderConfig();
 	void ClearRenderConfig();
 	void SetGlobalUniformValue(RenderText* renderText, Scene* scene);
 	void SetInstanceUniformValue(RenderText* renderText, unsigned int InstanceId, Scene* scene);
 	void ChangeFrameBufferSize(int _width, int _height, RenderText* renderText);
+	
 };
 class PostPipeline : public Pipeline {
 public:

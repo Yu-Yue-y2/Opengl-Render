@@ -52,5 +52,6 @@ public:
 	const Light* GetLigtht() const;
 	glm::vec3 GetPosition() const;
 	void SetPosition(glm::vec3);
+	void SetModelTransform(glm::mat4 m);
 };
 #endif

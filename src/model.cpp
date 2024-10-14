@@ -305,3 +305,7 @@ void Instance::SetPosition(glm::vec3 pos)
         model_transform[3][i] = pos[i];
     normal_transform = glm::transpose(glm::inverse(model_transform));
 }
+void Instance::SetModelTransform(glm::mat4 m)
+{
+    model_transform = m;
+}

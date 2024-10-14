@@ -228,7 +228,6 @@ void ImguiWindow::RenderImgui()
     {
         //shadow
         SHADOWTYPE shadowType = renderText->shadowInf.shadow_type;
-        ImGui::Text("SHADOW");
         const char* items[] = { "None", "Normal", "PCF", "PCSS" };
         int item_current = int(shadowType);
         ImGui::ListBox("ShadowType", &item_current, items, IM_ARRAYSIZE(items), 3);
@@ -244,10 +243,39 @@ void ImguiWindow::RenderImgui()
             }
         }
     }
+    //skybox
+    if (ImGui::CollapsingHeader("SKYBOX"))
+    {
+        bool skyboxInfChange = false;
+        SkyboxInf skyboxInf = renderText->skyboxInf;
+        const char* items[] = { "Cube" };
+        int item_current = int(skyboxInf.skyboxType);
+        if (ImGui::ListBox("SkyboxType", &item_current, items, IM_ARRAYSIZE(items), 3))
+        {
+            skyboxInfChange = true;
+            skyboxInf.skyboxType = (SKYBOXTYPE)item_current;
+        }
+        if (ImGui::Checkbox("CorrectReflect", &skyboxInf.correctReflect))
+        {
+            skyboxInfChange = true;
+        }
+        if (skyboxInf.skyboxType == SKYBOXTYPE::CUBEMAP_SKYBOX)
+        {
+            if (ImGui::SliderFloat("size", &(skyboxInf.size), 10, 200.0))
+            {
+                SkyboxPipeline* skyboxPipeline = dynamic_cast<SkyboxPipeline*>(render->GetPipeline(PIPELINE_NAME::SKYBOX));
+                skyboxPipeline->ChangeSkyboxSize(skyboxInf.size);
+                skyboxInfChange = true;
+            }
+        }
+        if (skyboxInfChange)
+        {
+            renderText->skyboxInf = skyboxInf;
+        }
+    }
     //hdr
     if (ImGui::CollapsingHeader("HDR"))
     {
-        ImGui::Text("HDR");
         HdrType hdrType = renderText->hdrInf.hdr_type;
         const char* items[] = { "None", "Reinhard", "Exp", "Flimic", "Aces" };
         int item_current = int(hdrType);

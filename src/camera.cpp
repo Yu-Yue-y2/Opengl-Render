@@ -5,7 +5,7 @@ glm::mat4 Camera::GetViewMatrix() const
 }
 glm::mat4 Camera::GetProjMatrix() const
 {
-    return glm::perspective(glm::radians(Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(Zoom), 800.0f / 600.0f, 0.1f, 200.0f);
 }
 glm::mat4 OrthoCamera::GetViewMatrix() const
 {

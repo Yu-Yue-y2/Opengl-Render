@@ -1,4 +1,5 @@
 #version 330 core
+#define FLT_MAX 1e20
 layout(location = 0) out vec4 FragColor;
 struct VS_OUT{
     vec3 vs_normal;
@@ -50,6 +51,11 @@ struct Material {
     vec3 materialSpecular;
     vec3 materialAmbient;
 };
+//skybox
+#define CUBEMAP_SKYBOX 0
+uniform bool correct_reflect_env;
+uniform int skybox_type;
+uniform float skybox_size;
 //sampler
 uniform sampler2D diffuse_texture;//diffuse
 uniform sampler2D shadowmap;//shadow
@@ -131,7 +137,27 @@ vec3 GetNormalInMap()
     normal = normalize(normal * 2.0 - 1.0);
     return normalize(vec3(normal_m * vec4(fs_in.tbn * normal,0.0)));
 }
-
+vec3 CorrectReflectEnv(vec3 dir)
+{
+    vec3 reflect_dir = dir;
+    if(correct_reflect_env)
+    {
+        if(skybox_type == CUBEMAP_SKYBOX)
+        {
+            vec3 box_max = vec3(skybox_size) + fs_in.view_point;
+            vec3 box_min = -box_max;
+            float t = FLT_MAX;
+            for(int i = 0;i < 3; i++)
+            {
+                if(dir[i] == 0.0)
+                    continue;
+                t = min(t, (dir[i] > 0.0 ? (box_max[i] - fs_in.world_pos[i]) : (box_min[i] - fs_in.world_pos[i])) / dir[i]);
+            }
+            reflect_dir = normalize(fs_in.world_pos + t * dir - fs_in.view_point);
+        }
+    }
+    return reflect_dir;
+}
 void main() {
     FragColor = vec4(vec3(0.0,0.0,0.0), 1.0);
     //return;
@@ -154,7 +180,8 @@ void main() {
     float type = fs_in.light_config.a;
     vec3 light_intensity = intensity.rgb;
      //ambient
-    vec3 light_ambient = ambient * texture(skybox_texture, reflectDir).rgb;
+     
+    vec3 light_ambient = ambient * texture(skybox_texture, CorrectReflectEnv(reflectDir)).rgb;
     FragColor += vec4(light_ambient, 0.0);
     if(type == DIRECTIONLIGHT) 
     {

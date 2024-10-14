@@ -2,7 +2,12 @@
 in vec3 Textcoor;
 out vec4 FragColor;
 uniform samplerCube skybox_texture;
+#define CUBEMAP_SKYBOX 0
+uniform int skybox_type;
 void main()
 {             
-   FragColor = texture(skybox_texture, Textcoor);
+	if(skybox_type == CUBEMAP_SKYBOX)
+	{
+		FragColor = texture(skybox_texture, Textcoor);
+	}
 }
