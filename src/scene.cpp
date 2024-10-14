@@ -9,7 +9,9 @@ Scene::Scene(RenderText* renderText)
 	uPtr<Light> dl = mkU<DirectionLight>();
 	dl->intensity = glm::vec3(1.0);
 	(dynamic_cast<DirectionLight*>(dl.get()))->dir = glm::normalize(glm::vec3(0.0, -1.0, 1.0));
+	dl->computeShadow = true;
 	Light* light = AddLight(dl, true);
+	AddLight(pl);
 
 	//main_camera
 	uPtr<Camera> camera = mkU<Camera>();
@@ -168,4 +170,12 @@ int Scene::GetTextureNum() const
 Texture* Scene::GetTexure(unsigned int id) const
 {
 	return textures[id].get();
+}
+int Scene::GetLightsSize() const
+{
+	return lights.size();
+}
+Light* Scene::GetLight(int id)
+{
+	return lights[id].get();
 }

@@ -209,18 +209,27 @@ void ImguiWindow::RenderImgui()
             }
         }
     }
+
     if (ImGui::CollapsingHeader("Lights")) {
-        Light* light = render->GetScene()->GetMainLight();
-        if (light->lighttype == POINTLIGHT) {
-            ImGui::Text("PointLight");
-            ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
-            ImGui::SliderFloat3("pos", glm::value_ptr(((PointLight*)light)->pos), -40.0, 40.0);
-        }
-        else if (light->lighttype == DIRECTIONLIGHT) {
-            ImGui::Text("DirectionLight");
-            ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
-            ImGui::SliderFloat3("dir", glm::value_ptr(((DirectionLight*)light)->dir), -1.0, 1.0);
-            ImGui::SliderFloat("lenth", &(((DirectionLight*)light)->lenth), 0.5, 1000.0);
+        for (int i = 0; i < render->GetScene()->GetLightsSize(); i++)
+        {
+            Light* light = render->GetScene()->GetLight(i);
+            bool computeS = light->computeShadow;
+            if (light->lighttype == POINTLIGHT) {
+                ImGui::Text("PointLight");
+                ImGui::SameLine();
+                ImGui::Checkbox("ComputeShadow", &computeS);
+                ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
+                ImGui::SliderFloat3("pos", glm::value_ptr(((PointLight*)light)->pos), -40.0, 40.0);
+            }
+            else if (light->lighttype == DIRECTIONLIGHT) {
+                ImGui::Text("DirectionLight");
+                ImGui::SameLine();
+                ImGui::Checkbox("ComputeShadow", &computeS);
+                ImGui::SliderFloat3("intensity", glm::value_ptr(light->intensity), 0.0, 10.0);
+                ImGui::SliderFloat3("dir", glm::value_ptr(((DirectionLight*)light)->dir), -1.0, 1.0);
+                ImGui::SliderFloat("lenth", &(((DirectionLight*)light)->lenth), 0.5, 1000.0);
+            }
         }
     }
     RenderText* renderText = render->GetRenderText();

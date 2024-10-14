@@ -9,15 +9,11 @@ struct VS_OUT{
     vec2 TexCoord;
     vec4 lightspace_pos;
     vec3 world_pos;
-    vec3 view_point;
-    vec4 light_config;
     mat3 tbn;
 };
 layout (location = 0) out VS_OUT vs_out;
 
 uniform bool has_tbn;
-uniform vec3 viewpos;
-uniform vec4 config;
 layout (std140) uniform Matrices
 {
     mat4 m;
@@ -40,6 +36,4 @@ void main()
         vs_out.tbn = mat3(t,b,n);
    }
    vs_out.vs_normal = (normal_m * vec4(aNormal, 0.0)).xyz;
-   vs_out.light_config = config;
-   vs_out.view_point = viewpos;
 }

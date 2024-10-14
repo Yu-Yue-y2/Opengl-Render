@@ -138,7 +138,13 @@ void ShadowPipeline::ChangeFrameBufferSize(int _width, int _height, RenderText* 
 {
 	fbo->Resize(_width, _height);
 }
-
+void ShadowPipeline::Render(RenderText* renderText, Scene* scene)
+{
+	if (renderText->shadowInf.shadow_type != SHADOWTYPE::NONE)
+	{
+		Pipeline::Render(renderText, scene);
+	}
+}
 
 //mainPipe
 MainPipeline::MainPipeline(const RenderText* renderText, Scene* scene)
@@ -146,7 +152,9 @@ MainPipeline::MainPipeline(const RenderText* renderText, Scene* scene)
 {
 	uniforms.resize(int(UniformId::UNIFORMNUM));
 	uPtr<Shader> vs = mkU<Shader>(GL_VERTEX_SHADER, VERTEX_MAIN_SHADER_PATH);
+	PRINT_ERROR();
 	uPtr<Shader> fs = mkU<Shader>(GL_FRAGMENT_SHADER, FRAGMENT_MAIN_SHADER_PATH);
+	PRINT_ERROR();
 	std::vector<Shader*> shaders = { vs.get(), fs.get() };
 	shader = mkU<ShaderProgram>(shaders);
 
@@ -164,6 +172,13 @@ MainPipeline::MainPipeline(const RenderText* renderText, Scene* scene)
 	materialsUniformBuf->Bind();
 	shader->BindUniformBlock(materialsUniformBuf.get());
 	uniforms[UniformId::MATERIALS] = (std::move(materialsUniformBuf));
+	//lights
+	uPtr<UniformBlock> lightsUniformBuf = mkU<UniformBlock>();
+	lightsUniformBuf->SetSize(scene->GetLightsSize() * sizeof(LightUniformData));
+	lightsUniformBuf->SetName("RawLights");
+	lightsUniformBuf->Bind();
+	shader->BindUniformBlock(lightsUniformBuf.get());
+	uniforms[UniformId::LIGHTS] = (std::move(lightsUniformBuf));
 	//skybox
 	free_textures.push_back(renderText->skyboxInf.skyboxTexture);
 
@@ -177,9 +192,20 @@ void MainPipeline::SetRenderConfig()
 void MainPipeline::ClearRenderConfig() {}
 void MainPipeline::SetGlobalUniformValue(RenderText* renderText, Scene* scene)
 {
-	shader->setVec4("intensity", scene->GetMainLight()->getData().intensity);
-	shader->setVec4("config", scene->GetMainLight()->getData().v1);
-	shader->setVec3("viewpos", scene->GetCamera()->Position);
+	//light
+	//shader->setVec4("intensity", scene->GetMainLight()->getData().intensity);
+	//shader->setVec4("config", scene->GetMainLight()->getData().v1);
+	UniformBlock* lights = uniforms[UniformId::LIGHTS].get();
+	lights->Active();
+	for (int i = 0; i < scene->GetLightsSize(); i++)
+	{
+		LightUniformData data = scene->GetLight(i)->getData();
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * 2 * i, sizeof(glm::vec4), glm::value_ptr(data.intensity));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::vec4) * (2 * i + 1), sizeof(glm::vec4), glm::value_ptr(data.v1));
+	}
+	lights->DisActive();
+	shader->setInt("light_num", scene->GetLightsSize());
+	shader->setVec3("view_point", scene->GetCamera()->Position);
 	//shaodw
 	shader->setInt("ShadowType", int(renderText->shadowInf.shadow_type));
 	shader->setInt("core", renderText->shadowInf.core_half);
@@ -241,7 +267,6 @@ void MainPipeline::SetInstanceUniformValue(RenderText* renderText, unsigned int 
 		shader->setTexture(renderText->textureDynamicCount, texture);
 		renderText->textureDynamicCount++;
 	}
-	shader->setBool("hasm_texture", material.GetDiffuseMap() != nullptr);
 	shader->setBool("has_tbn", model.has_tbn && material.GetNormalMap() != nullptr);
 }
 unsigned int MainPipeline::GetAllInstanceMaterialSize() const

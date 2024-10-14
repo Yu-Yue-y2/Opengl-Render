@@ -6,8 +6,6 @@ struct VS_OUT{
     vec2 TexCoord;
     vec4 lightspace_pos;
     vec3 world_pos;
-    vec3 view_point;
-    vec4 light_config;
     mat3 tbn;
 };
 layout(location = 0) in VS_OUT fs_in;
@@ -18,19 +16,31 @@ layout(location = 0) in VS_OUT fs_in;
 #define NORMALSHADOW 1
 #define PCFSHADOW 2
 #define PCSSSHADOW 3
-
-//light
-uniform vec4 intensity;
-
+uniform vec3 view_point;
 //shadow
 uniform float hpixellenth;
 uniform float biascontrol;
 uniform float biasoffset;
 uniform int ShadowType;
 uniform int core;
+//light
+#define LIGHT_COMPUTE_SHADOW 0.0f
+struct Light {
+    vec4 intensity; 
+    vec4 v1;      
+};
+layout (std140) uniform RawLights {
+    Light lights[]; 
+};
+uniform int light_num;
+
+#define GetLightPos GetLightDir
+vec3 GetLightDir(int id)
+{
+    return lights[id].v1;
+}
 
 //condition inf
-uniform bool hasm_texture;
 uniform bool has_tbn;
 layout (std140) uniform Matrices
 {
@@ -115,7 +125,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightdir, vec3 normal) {
         }
         d_block /= pow(2 * core + 1, 2);
 
-        float light_width = intensity.a;
+        float light_width = 10.0;//intensity.a;
         int core_lenth = int(light_width * d_block / (texture(shadowmap, projCoords.xy).r - d_block));
         int hl = max(min((core_lenth - 1) / 2, 4), 0);
         for(int x = -hl; x <= hl; ++x) {
@@ -144,7 +154,7 @@ vec3 CorrectReflectEnv(vec3 dir)
     {
         if(skybox_type == CUBEMAP_SKYBOX)
         {
-            vec3 box_max = vec3(skybox_size) + fs_in.view_point;
+            vec3 box_max = vec3(skybox_size) + view_point;
             vec3 box_min = -box_max;
             float t = FLT_MAX;
             for(int i = 0;i < 3; i++)
@@ -153,16 +163,15 @@ vec3 CorrectReflectEnv(vec3 dir)
                     continue;
                 t = min(t, (dir[i] > 0.0 ? (box_max[i] - fs_in.world_pos[i]) : (box_min[i] - fs_in.world_pos[i])) / dir[i]);
             }
-            reflect_dir = normalize(fs_in.world_pos + t * dir - fs_in.view_point);
+            reflect_dir = normalize(fs_in.world_pos + t * dir - view_point);
         }
     }
     return reflect_dir;
 }
 void main() {
     FragColor = vec4(vec3(0.0,0.0,0.0), 1.0);
-    //return;
     Material material = AnalyseMaterial();
-    vec3 diffuse = hasm_texture ? vec3(texture(diffuse_texture, fs_in.TexCoord)) : material.materialDiffuse;
+    vec3 diffuse = vec3(texture(diffuse_texture, fs_in.TexCoord)) * material.materialDiffuse;
     vec3 specular = material.materialSpecular;
     vec3 ambient = material.materialAmbient;
     vec3 normal, light_dir;
@@ -174,48 +183,43 @@ void main() {
     {
         normal = normalize(fs_in.vs_normal);
     }
-
-    vec3 view = normalize(fs_in.view_point - fs_in.world_pos);
+    vec3 view = normalize(view_point - fs_in.world_pos);
     vec3 reflectDir = -reflect(view, normal);
-    float type = fs_in.light_config.a;
-    vec3 light_intensity = intensity.rgb;
-     //ambient
-     
     vec3 light_ambient = ambient * texture(skybox_texture, CorrectReflectEnv(reflectDir)).rgb;
     FragColor += vec4(light_ambient, 0.0);
-    if(type == DIRECTIONLIGHT) 
+    for(int i = 0; i < light_num; i++)
     {
-        light_dir = -fs_in.light_config.xyz;
-        float shadowFact = ShadowCalculation(fs_in.lightspace_pos, light_dir, normal);
-        if(shadowFact == 0.0)
+        float type = lights[i].v1.w;
+        vec3 light_intensity = vec3(lights[i].intensity);
+        if(type == DIRECTIONLIGHT) 
         {
-            return;
-        }
-        light_intensity  = shadowFact * light_intensity;
-    } 
-    else if(type == POINTLIGHT) 
-    {
-        vec3 light_pos = fs_in.light_config.rgb;
-        light_dir = normalize(light_pos - fs_in.world_pos);
-        float d = sqrt(length(light_pos - fs_in.world_pos));
-        if(d < 1.5)
+            light_dir = -vec3(lights[i].v1);
+            float shadowFact = ShadowCalculation(fs_in.lightspace_pos, light_dir, normal);
+            if(shadowFact == 0.0)
+            {
+                return;
+            }
+            light_intensity  = shadowFact * light_intensity;
+        } 
+        else if(type == POINTLIGHT) 
         {
-            FragColor = vec4(1.0, 1.0, 1.0 ,1.0);
-            return;
-        }
-        float atten = 1.0 + 0.7 * d + 0.052 * d * d;
-        light_intensity /= atten;
-    } 
-    else 
-    {
-        return;
+            vec3 light_pos = vec3(lights[i].v1);
+            light_dir = normalize(light_pos - fs_in.world_pos);
+            float d = sqrt(length(light_pos - fs_in.world_pos));
+            if(d < 1.5)
+            {
+                FragColor = vec4(1.0, 1.0, 1.0 ,1.0);
+                return;
+            }
+            float atten = 1.0 + 0.7 * d + 0.052 * d * d;
+            light_intensity /= atten;
+        } 
+        //diffuse
+        vec3 light_diffuse = light_intensity * (max(0.0, dot(light_dir, normal))) * diffuse;
+        FragColor += vec4(light_diffuse, 0.0);
+        //specular
+        vec3 half_angle = normalize(view + light_dir);
+        vec3 light_specular = light_intensity * pow(max(dot(half_angle, normal), 0.0), 32) * specular;
+        FragColor += vec4(light_specular, 0.0);
     }
-   
-    //diffuse
-    vec3 light_diffuse = light_intensity * (max(0.0, dot(light_dir, normal))) * diffuse;
-    FragColor += vec4(light_diffuse, 0.0);
-    //specular
-    vec3 half_angle = normalize(view + light_dir);
-    vec3 light_specular = light_intensity * pow(max(dot(half_angle, normal), 0.0), 32) * specular;
-    FragColor += vec4(light_specular, 0.0);
 }

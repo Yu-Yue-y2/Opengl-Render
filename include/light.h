@@ -14,6 +14,7 @@ class Light {
 public:
 	LightType lighttype;
 	glm::vec3 intensity;
+	bool computeShadow = false;
 	float lenth = 1.0;
 	virtual LightUniformData getData() const  = 0;
 	virtual glm::mat4 getProjection() const  = 0;
@@ -30,7 +31,7 @@ public:
 	LightUniformData getData() const
 	{
 		//glm::vec3 _pos = glm::vec3(vp * glm::vec4(pos, 1.0));
-		return { glm::vec4(intensity, lenth) , glm::vec4(pos, POINTLIGHT)};
+		return { glm::vec4(intensity, computeShadow) , glm::vec4(pos, POINTLIGHT)};
 	}
 	glm::vec3 getPos() const
 	{
@@ -55,7 +56,7 @@ public:
 	LightUniformData getData() const
 	{
 		//glm::vec3 _dir = glm::vec3(vp * glm::vec4(dir, 0.0));
-		return { glm::vec4(intensity, lenth) , glm::vec4(dir, DIRECTIONLIGHT) };
+		return { glm::vec4(intensity, computeShadow) , glm::vec4(dir, DIRECTIONLIGHT) };
 		//return { glm::vec4(intensity, lenth) , glm::vec4(dir, DIRECTIONLIGHT)};
 	}
 	glm::mat4 getProjection() const

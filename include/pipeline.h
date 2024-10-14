@@ -47,7 +47,7 @@ public:
 	virtual void SetGlobalUniformValue(RenderText* renderText, Scene* scene) = 0;
 	virtual void SetInstanceUniformValue(RenderText* renderText, unsigned int InstanceId, Scene* scene) = 0;
 	//circulate all instance and render
-	void Render(RenderText* renderText, Scene* scene);
+	virtual void Render(RenderText* renderText, Scene* scene);
 	//interact
 	virtual void ChangeFrameBufferSize(int _width, int _height, RenderText* renderText) = 0;
 };
@@ -63,6 +63,7 @@ private:
 	void SetGlobalUniformValue(RenderText* renderText, Scene* scene);
 	void SetInstanceUniformValue(RenderText* renderText, unsigned int InstanceId, Scene* scene);
 public:
+	virtual void Render(RenderText* renderText, Scene* scene);
 	//render context
 	void SetRenderTextShadowInf(ShadowInf& shadowInf);
 	void ChangeFrameBufferSize(int _width, int _height, RenderText* renderText);

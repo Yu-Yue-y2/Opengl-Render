@@ -13,7 +13,7 @@ Shader::Shader(unsigned int type, const char* path)
 		return;
 	}
 	id = glCreateShader(type);
-	std::cout << _c << std::endl;
+	//std::cout << _c << std::endl;
 	glShaderSource(id, 1, &_c, NULL);
 	glCompileShader(id);
 	DEBUG(id, GL_COMPILE_STATUS, glGetShaderiv);

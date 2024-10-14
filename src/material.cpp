@@ -18,12 +18,14 @@ void Material::GetMaterialData(std::vector<float>* data, unsigned int &lenth) co
 void Material::SetDiffuse(glm::vec3 _diffuse, Texture* _diffuseMap)
 {
 	diffuse = _diffuse;
-	diffuseMap = _diffuseMap;
+	if (_diffuseMap)
+		diffuseMap = _diffuseMap;
 }
 void Material::SetSpecular(glm::vec3 _specular, Texture* _specularMap)
 {
 	specular = _specular;
-	specularMap = _specularMap;
+	if (_specularMap)
+		specularMap = _specularMap;
 }
 void Material::SetAmbient(glm::vec3 _ambient)
 {

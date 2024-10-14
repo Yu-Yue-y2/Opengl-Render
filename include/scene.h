@@ -26,6 +26,8 @@ public:
 	Light* GetMainLight() const;
 	int GetTextureNum() const;
 	Texture* GetTexure(unsigned int id) const;
+	int GetLightsSize() const;
+	Light* GetLight(int id);
 	Scene(RenderText* renderText);
 	Scene() = delete;
 };

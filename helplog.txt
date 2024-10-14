@@ -41,3 +41,51 @@ future plan:
 2 shadow for point light (cubemap, ...)
 3 more material (micro face)
  
+
+
+2024.10.14 10:08
+now I can load multi lights.
+Bad news! A strange bug occurs.
+in fragment shader, I loop the lights to render.I send light array data by uniform block and analyse it 
+by every light's type(point or directional).
+When I use this analyse function inside the loop,glLink function crushed:
+'''
+glsl 0x00007FFDA2F5BBCC (igxelpicd64.dll)处(位于 render.exe 中)引发的异常: 0xC0000005: 读取位置 0x0000000000000014 时发生访问冲突。
+'''
+But when I directly analyse data in the loop(just copy the function code to where it was used), everything goes well.
+The fuctions are:
+
+'''
+vec3 GetLightIntensity(int id)
+{
+    return lights[id].intensity;
+}
+int GetLightType(int id)
+{
+    return int(lights[id].intensity.w);
+}
+#define GetLightPos GetLightDir
+vec3 GetLightDir(int id)
+{
+    return lights[id].v1;
+}
+bool RenderShadow(int id)
+{
+    return lights[id].v1.w != LIGHT_COMPUTE_SHADOW;
+}
+'''
+
+I give up and just copy them, now it looks ugly.
+'''
+float type = lights[i].v1.w;
+'''
+
+I thought it could be similar to this problem:
+https://bbs.csdn.net/topics/390386477
+it says that loop code will expand to increase performance, and if the code inside is too complex, may cause error
+
+this blog writes some details about rules in the loop of glsl:
+https://blog.csdn.net/6346289/article/details/100037361?fromshare=blogdetail&sharetype=blogdetail&sharerId=100037361&sharerefer=PC&sharesource=yuyue1004&sharefrom=from_link
+But I am still puzzle and confused.
+I will ask teacher for help.
+Next aim: hdr
